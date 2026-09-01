@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Munshi theme — "ledger ink & gold": a deep ink-blue primary (structure,
+  trust) with a muted gold accent reserved for highlights/positive figures,
+  on a cool paper-toned background. Chosen for an accounting tool used many
+  times a day, not a marketing page — kept deliberately quiet and dense.
+*/
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 217 91% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 20% 94%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 20% 94%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 20% 88%;
+    --input: 214 20% 88%;
+    --ring: 217 91% 35%;
+
+    --radius: 0.5rem;
+
+    --font-sans: "Inter", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  .dark {
+    --background: 222 47% 8%;
+    --foreground: 210 20% 96%;
+
+    --card: 222 40% 11%;
+    --card-foreground: 210 20% 96%;
+
+    --popover: 222 40% 11%;
+    --popover-foreground: 210 20% 96%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 8%;
+
+    --secondary: 222 30% 16%;
+    --secondary-foreground: 210 20% 96%;
+
+    --muted: 222 30% 16%;
+    --muted-foreground: 215 16% 65%;
+
+    --accent: 38 92% 55%;
+    --accent-foreground: 222 47% 8%;
+
+    --destructive: 0 63% 45%;
+    --destructive-foreground: 210 20% 96%;
+
+    --border: 222 30% 20%;
+    --input: 222 30% 20%;
+    --ring: 217 91% 60%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  /* Numeric/money columns should always use tabular figures so amounts align. */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}

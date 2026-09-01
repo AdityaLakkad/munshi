@@ -1,0 +1,685 @@
+<title>Munshi Walkthrough</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ink: 217 91% 35%;
+    --ink-hover: 217 91% 30%;
+    --gold: 38 92% 50%;
+    --paper: 210 20% 98%;
+    --paper-card: 0 0% 100%;
+    --ink-text: 222 47% 11%;
+    --muted: 215 16% 40%;
+    --line: 214 20% 88%;
+    --rail-bg: 222 47% 11%;
+    --rail-text: 210 20% 92%;
+    --rail-muted: 215 16% 62%;
+    --positive: 152 55% 30%;
+    --negative: 0 72% 45%;
+    --focus: 217 91% 35%;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: 217 91% 63%;
+      --ink-hover: 217 91% 70%;
+      --gold: 38 92% 58%;
+      --paper: 222 47% 8%;
+      --paper-card: 222 40% 12%;
+      --ink-text: 210 20% 96%;
+      --muted: 215 16% 68%;
+      --line: 222 30% 22%;
+      --rail-bg: 222 47% 6%;
+      --rail-text: 210 20% 92%;
+      --rail-muted: 215 16% 55%;
+      --positive: 152 45% 58%;
+      --negative: 0 70% 66%;
+      --focus: 217 91% 63%;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: 217 91% 63%;
+    --ink-hover: 217 91% 70%;
+    --gold: 38 92% 58%;
+    --paper: 222 47% 8%;
+    --paper-card: 222 40% 12%;
+    --ink-text: 210 20% 96%;
+    --muted: 215 16% 68%;
+    --line: 222 30% 22%;
+    --rail-bg: 222 47% 6%;
+    --rail-text: 210 20% 92%;
+    --rail-muted: 215 16% 55%;
+    --positive: 152 45% 58%;
+    --negative: 0 70% 66%;
+    --focus: 217 91% 63%;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: hsl(var(--paper));
+    color: hsl(var(--ink-text));
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+
+  h1, h2, h3, .display {
+    font-family: "Fraunces", Georgia, serif;
+    text-wrap: balance;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  code, kbd, .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+  kbd {
+    display: inline-block;
+    border: 1px solid hsl(var(--line));
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    padding: 0.05em 0.5em;
+    font-size: 0.8em;
+    background: hsl(var(--paper-card));
+  }
+  a { color: hsl(var(--ink)); }
+  :focus-visible { outline: 2px solid hsl(var(--focus)); outline-offset: 2px; }
+
+  /* ---------- page shell ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: 272px 1fr;
+    min-height: 100vh;
+  }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .rail { position: static !important; height: auto !important; }
+  }
+
+  .rail {
+    background: hsl(var(--rail-bg));
+    color: hsl(var(--rail-text));
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 28px 18px 28px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .rail-brand {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid hsla(0,0%,100%,0.12);
+  }
+  .rail-brand .mark { font-family: "Fraunces", serif; font-weight: 600; font-size: 1.15rem; }
+  .rail-brand .sub { font-size: 0.7rem; color: hsl(var(--rail-muted)); letter-spacing: .04em; text-transform: uppercase; }
+
+  .rail-group { display: flex; flex-direction: column; gap: 2px; }
+  .rail-group-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: hsl(var(--rail-muted));
+    padding: 10px 10px 6px;
+  }
+  .rail-item {
+    all: unset;
+    cursor: pointer;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 0.86rem;
+    color: hsl(var(--rail-muted));
+    line-height: 1.3;
+  }
+  .rail-item .n { font-family: "JetBrains Mono", monospace; font-size: 0.72rem; opacity: .8; min-width: 1.4em; }
+  .rail-item:hover { background: hsla(0,0%,100%,0.06); color: hsl(var(--rail-text)); }
+  .rail-item.is-active {
+    background: hsla(38,92%,58%,0.14);
+    color: #fff;
+  }
+  .rail-item.is-active .n { color: hsl(var(--gold)); }
+  .rail-item.is-visited .n::after { content: ""; }
+
+  /* ---------- content pane ---------- */
+  .stage { padding: 56px 64px 90px; max-width: 880px; }
+  @media (max-width: 640px) { .stage { padding: 34px 20px 70px; } }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.76rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: hsl(var(--ink));
+    margin-bottom: 14px;
+  }
+  .eyebrow .idx { color: hsl(var(--gold)); }
+  .eyebrow::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: hsl(var(--line));
+  }
+
+  h2.step-title { font-size: clamp(1.5rem, 2.6vw, 2.05rem); margin-bottom: 14px; }
+  .step-copy { max-width: 62ch; font-size: 1rem; line-height: 1.65; color: hsl(var(--ink-text)); }
+  .step-copy p { margin: 0 0 14px; }
+  .step-copy ul { margin: 0 0 16px; padding-left: 1.2em; }
+  .step-copy li { margin-bottom: 6px; }
+  .step-copy strong { font-weight: 600; }
+
+  .callout {
+    border-left: 3px solid hsl(var(--gold));
+    background: hsla(38,92%,58%,0.08);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.92rem;
+    margin: 20px 0 24px;
+  }
+  .callout b { font-family: "JetBrains Mono", monospace; font-size: 0.72rem; text-transform: uppercase; letter-spacing: .05em; color: hsl(var(--gold)); display: block; margin-bottom: 4px; }
+
+  .stage-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid hsl(var(--line));
+  }
+  .page-btn {
+    all: unset;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 9px 16px;
+    border-radius: 8px;
+    border: 1px solid hsl(var(--line));
+    color: hsl(var(--ink-text));
+    background: hsl(var(--paper-card));
+  }
+  .page-btn:hover { border-color: hsl(var(--ink)); color: hsl(var(--ink)); }
+  .page-btn.primary { background: hsl(var(--ink)); color: white; border-color: hsl(var(--ink)); }
+  .page-btn.primary:hover { background: hsl(var(--ink-hover)); }
+  .page-btn:disabled { opacity: .35; cursor: default; }
+  .page-btn:disabled:hover { border-color: hsl(var(--line)); color: hsl(var(--ink-text)); }
+
+  /* ---------- mock browser frame ---------- */
+  .mock-shell {
+    margin-top: 28px;
+    border: 1px solid hsl(var(--line));
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 18px 40px -22px rgba(15, 26, 46, 0.35);
+    background: hsl(var(--paper-card));
+    position: relative;
+  }
+  .mock-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    background: hsl(var(--paper));
+    border-bottom: 1px solid hsl(var(--line));
+  }
+  .mock-dot { width: 9px; height: 9px; border-radius: 50%; background: hsl(var(--line)); }
+  .mock-url {
+    margin-left: 8px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    color: hsl(var(--muted));
+  }
+  .mock-app { display: flex; min-height: 340px; font-size: 0.82rem; }
+  .mock-sidebar {
+    width: 132px;
+    flex-shrink: 0;
+    background: hsl(var(--paper-card));
+    border-right: 1px solid hsl(var(--line));
+    padding: 12px 8px;
+  }
+  .mock-brand { font-family: "Fraunces", serif; font-weight: 600; font-size: 0.95rem; padding: 4px 8px 14px; }
+  .mock-nav-item {
+    padding: 7px 9px;
+    border-radius: 6px;
+    color: hsl(var(--muted));
+    font-size: 0.78rem;
+    margin-bottom: 2px;
+  }
+  .mock-nav-item.is-active {
+    background: hsla(217,91%,50%,0.1);
+    color: hsl(var(--ink));
+    font-weight: 600;
+  }
+  .mock-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .mock-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 16px;
+    border-bottom: 1px solid hsl(var(--line));
+    font-size: 0.72rem;
+    color: hsl(var(--muted));
+  }
+  .mock-avatar {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: hsl(var(--ink)); color: white;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 600;
+  }
+  .mock-content { padding: 16px; overflow: auto; }
+
+  .mock-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px,1fr)); gap: 10px; margin-bottom: 14px; }
+  .mock-card {
+    border: 1px solid hsl(var(--line));
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: hsl(var(--paper-card));
+  }
+  .mock-stat-label { font-size: 0.66rem; text-transform: uppercase; letter-spacing: .04em; color: hsl(var(--muted)); margin-bottom: 4px; }
+  .mock-stat-value { font-family: "JetBrains Mono", monospace; font-size: 0.95rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  table.mock-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
+  .mock-table th {
+    text-align: left; font-weight: 600; text-transform: uppercase; font-size: 0.62rem;
+    letter-spacing: .04em; color: hsl(var(--muted)); border-bottom: 1px solid hsl(var(--line)); padding: 6px 8px;
+  }
+  .mock-table td { padding: 7px 8px; border-bottom: 1px solid hsl(var(--line)); font-variant-numeric: tabular-nums; }
+  .mock-amt-pos { color: hsl(var(--positive)); font-family: "JetBrains Mono", monospace; }
+  .mock-amt-neg { color: hsl(var(--negative)); font-family: "JetBrains Mono", monospace; }
+
+  .mock-badge {
+    display: inline-block; padding: 1px 8px; border-radius: 999px;
+    background: hsla(217,91%,50%,0.12); color: hsl(var(--ink)); font-size: 0.66rem; font-weight: 600;
+  }
+  .mock-badge.muted { background: hsl(var(--paper)); color: hsl(var(--muted)); border: 1px solid hsl(var(--line)); }
+
+  .mock-btn {
+    display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; font-weight: 600;
+    padding: 5px 10px; border-radius: 6px; border: 1px solid hsl(var(--line)); background: hsl(var(--paper-card)); color: hsl(var(--ink-text));
+  }
+  .mock-btn.primary { background: hsl(var(--ink)); color: #fff; border-color: hsl(var(--ink)); }
+
+  .mock-overlay {
+    position: absolute; inset: 0; background: rgba(15,20,30,0.42);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .mock-dialog {
+    background: hsl(var(--paper-card)); border-radius: 10px; border: 1px solid hsl(var(--line));
+    padding: 18px 20px; width: min(320px, 100%); box-shadow: 0 20px 44px -16px rgba(0,0,0,0.4);
+  }
+  .mock-dialog h4 { font-family: "Fraunces", serif; font-size: 1rem; margin: 0 0 12px; }
+  .mock-field { margin-bottom: 10px; }
+  .mock-field label { display: block; font-size: 0.68rem; color: hsl(var(--muted)); margin-bottom: 3px; }
+  .mock-input {
+    border: 1px solid hsl(var(--line)); border-radius: 6px; padding: 6px 9px; font-size: 0.78rem;
+    background: hsl(var(--paper)); color: hsl(var(--ink-text)); display: flex; align-items: center; justify-content: space-between;
+  }
+  .mock-combo-list {
+    border: 1px solid hsl(var(--line)); border-top: none; border-radius: 0 0 6px 6px; background: hsl(var(--paper-card));
+    margin-top: -1px;
+  }
+  .mock-combo-item { padding: 6px 9px; font-size: 0.76rem; border-bottom: 1px solid hsl(var(--line)); }
+  .mock-combo-item:last-child { border-bottom: none; }
+  .mock-combo-item.add { color: hsl(var(--ink)); font-weight: 600; }
+
+  .mock-palette {
+    background: hsl(var(--paper-card)); border: 1px solid hsl(var(--line)); border-radius: 10px;
+    width: min(360px,100%); box-shadow: 0 20px 44px -16px rgba(0,0,0,0.4); overflow: hidden;
+  }
+  .mock-palette-input { padding: 12px 14px; border-bottom: 1px solid hsl(var(--line)); font-size: 0.82rem; color: hsl(var(--muted)); }
+  .mock-palette-group-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: .05em; color: hsl(var(--muted)); padding: 8px 14px 2px; }
+  .mock-palette-item { padding: 7px 14px; font-size: 0.8rem; display: flex; gap: 8px; align-items: center; }
+  .mock-palette-item.sel { background: hsla(217,91%,50%,0.1); }
+
+  .mock-toast {
+    position: absolute; right: 14px; bottom: 14px; background: hsl(var(--paper-card));
+    border: 1px solid hsl(var(--line)); border-left: 3px solid hsl(var(--positive));
+    border-radius: 8px; padding: 8px 14px; font-size: 0.76rem; box-shadow: 0 10px 24px -10px rgba(0,0,0,0.35);
+  }
+  .mock-toast b { display: block; font-weight: 600; margin-bottom: 1px; }
+
+  .theme-toggle {
+    position: fixed; top: 18px; right: 18px; z-index: 20;
+    background: hsl(var(--paper-card)); border: 1px solid hsl(var(--line)); border-radius: 999px;
+    padding: 6px 12px; font-size: 0.72rem; font-family: "Inter", sans-serif; cursor: pointer; color: hsl(var(--ink-text));
+  }
+</style>
+
+<button class="theme-toggle" id="themeToggle" type="button">Toggle theme</button>
+
+<div class="layout">
+  <nav class="rail" id="rail" aria-label="Walkthrough steps"></nav>
+  <main class="stage" id="stage" tabindex="-1"></main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STEPS = [
+    {
+      group: "Getting started", title: "What Munshi does",
+      copy: "<p><strong>Munshi</strong> is a cashbook and accounting workspace for small businesses — sales, purchases, employee salaries, and a single running cash ledger that ties them all together.</p><p>Each business that signs up gets its own private workspace. Nobody outside your firm ever sees your data, and you never see theirs.</p><ul><li>Record sales &amp; purchases with running customer/supplier balances</li><li>One CashBook as the single source of truth for cash position</li><li>Payroll: monthly salary runs and advances</li><li>Every list exports to CSV</li></ul>",
+      callout: { label: "Why it matters", text: "Every payment you record elsewhere in the app — a sale, a purchase, a salary — automatically posts to the CashBook. You never reconcile two systems." },
+      mock: function () {
+        return shell("Dashboard", '<div class="mock-card-grid">' +
+          statCard("Cash in hand", "₹35,400", true) +
+          statCard("Bank balance", "−₹16,200", false) +
+          statCard("Sales this month", "₹1,000", true) +
+          statCard("Purchases this month", "₹2,000", false) +
+          '</div>' + '<div style="font-size:.68rem;color:hsl(var(--muted));text-transform:uppercase;letter-spacing:.04em;margin:6px 0">Recent transactions</div>' +
+          table(["Date","Type","Amount"], [
+            ["Aug 29","Salary", amt(-25000)],
+            ["Aug 28","Advance salary", amt(-2000)],
+            ["Aug 27","Purchase payment", amt(-1200)],
+            ["Aug 26","Sales payment", amt(400)]
+          ]));
+      }
+    },
+    {
+      group: "Getting started", title: "Create your firm’s workspace",
+      copy: "<p>Sign-up is a single form: <strong>firm name</strong>, <strong>your name</strong>, <strong>email</strong>, and a password. Submitting it does two things at once — creates your tenant (your isolated workspace) and your account as its Firm Admin.</p><p>There’s no separate “verify your email” or “invite yourself” step. You’re dropped straight onto the Dashboard, signed in.</p>",
+      callout: { label: "Tip", text: "Firm Admins can add Staff or Viewer accounts later from within the workspace — Staff can record entries, Viewers are read-only." },
+      mock: function () {
+        return shell(null, dialogOverlay("Create your firm’s workspace", [
+          ["Firm name", "Rohit Traders"],
+          ["Your name", "Rohit Mehta"],
+          ["Email", "rohit@rohit traders.in"],
+          ["Password", "••••••••••"]
+        ], "Create workspace"));
+      }
+    },
+    {
+      group: "Getting started", title: "The Dashboard, at a glance",
+      copy: "<p>After logging in you land here every time. Six cards give you the day’s position — cash, bank, this month’s sales and purchases, and what’s outstanding on both sides of the ledger.</p><p>Below that, the <strong>recent transactions</strong> feed pulls the last 15 entries from every module — sales payments, purchase payments, salary, advances, credits and debits — in one chronological list.</p>",
+      callout: { label: "Try it", text: "Use the quick-add buttons at the top of the Dashboard to jump straight into a Credit, Debit, Sale, or Purchase without leaving the page." },
+      mock: function () {
+        return shell("Dashboard", '<div class="mock-card-grid">' +
+          statCard("Cash in hand", "₹35,400", true) +
+          statCard("Bank balance", "−₹16,200", false) +
+          statCard("Receivable", "₹600", true) +
+          statCard("Payable", "₹800", false) +
+          '</div>');
+      }
+    },
+    {
+      group: "CashBook", title: "Record a credit or debit",
+      copy: "<p>The CashBook is where every cash-in and cash-out that isn’t already tied to a sale, purchase, or salary gets logged — rent, a cash withdrawal, an owner’s deposit.</p><p>Every entry needs a date, an amount, a mode (<strong>cash</strong>, <strong>bank</strong>, or <strong>UPI</strong>), and a category you can reuse next time.</p>",
+      callout: null,
+      mock: function () {
+        return shell("CashBook", '<div style="display:flex;gap:6px;margin-bottom:12px">' + btn("+ Credit") + btn("− Debit") + btn("⇄ Transfer", true) + '</div>' +
+          table(["Date","Type","Category","Amount","Balance"], [
+            ["Aug 01","Credit","Opening Balance", amt(1000), "₹1,000"],
+            ["Aug 05","Debit","Rent", amt(-300), "₹700"]
+          ]), dialogOverlay("New credit", [["Date","2026-09-01"],["Amount","1,000"],["Mode","Cash"],["Category","Opening Balance"]], "Save"));
+      }
+    },
+    {
+      group: "CashBook", title: "Move money between accounts",
+      copy: "<p>A <strong>Transfer</strong> moves money from one mode to another — say, depositing cash into the bank. Pick a <em>from</em> and a <em>to</em>; Munshi writes two linked ledger rows so your cash balance drops exactly as your bank balance rises.</p>",
+      callout: { label: "Guardrail", text: "The form won’t let you transfer a mode to itself — you’ll see a validation error instead of a silent no-op entry." },
+      mock: function () {
+        return shell("CashBook", table(["Date","Type","Mode","Amount"], [
+          ["Aug 21","Transfer","Bank", amt(10000)],
+          ["Aug 21","Transfer","Cash", amt(-10000)]
+        ]), dialogOverlay("New transfer", [["Date","2026-09-01"],["From","Cash"],["To","Bank"],["Amount","10,000"]], "Save"));
+      }
+    },
+    {
+      group: "Sales", title: "Record a sale",
+      copy: "<p>Pick a customer, an item, quantity and rate — the total calculates itself as you type. Don’t see the customer you need? Click the <strong>+</strong> next to the search box to add them inline without leaving the form.</p>",
+      callout: { label: "Autocomplete everywhere", text: "Any field that references another record — a customer, supplier, employee, or item — works this way: type to search, or add new on the spot." },
+      mock: function () {
+        return shell("Sales", table(["Date","Customer","Item","Total"], [
+          ["Aug 15","Rohit Traders","Notebook × 20","₹1,000"]
+        ]), dialogOverlay("New sale", null, "Save", comboField("Customer", "Rohit Trad", [
+          {text: "Rohit Traders"}, {text: "+ Add “Rohit Trad…” as new customer", add: true}
+        ]) + fields([["Date","2026-08-15"],["Item","Notebook"],["Qty","20"],["Rate","50"]]) + '<div style="font-size:.74rem;color:hsl(var(--muted));margin-top:8px">Total: <b class="mono" style="color:hsl(var(--ink-text))">₹1,000.00</b></div>'));
+      }
+    },
+    {
+      group: "Sales", title: "Take a payment & watch the balance",
+      copy: "<p>A sale doesn’t have to be paid in full up front. Record whatever the customer actually pays — Munshi keeps the difference as their <strong>outstanding</strong> balance, and the payment posts straight to the CashBook as a <code>sales_payment</code>.</p>",
+      callout: null,
+      mock: function () {
+        return shell("Sales", '<div style="display:flex;gap:14px;font-size:.72rem;color:hsl(var(--muted));margin-bottom:10px"><span style="font-weight:600;color:hsl(var(--ink-text));border-bottom:2px solid hsl(var(--ink))">Outstanding</span><span>Entries</span><span>Payments</span></div>' +
+          table(["Customer","Total sales","Total paid","Outstanding"], [
+            ["Rohit Traders","₹1,000","₹400", '<span class="mock-amt-neg">₹600</span>']
+          ]));
+      }
+    },
+    {
+      group: "Purchases", title: "The same flow, from the buying side",
+      copy: "<p>Purchases mirror Sales exactly — supplier instead of customer, and a payment here shows up in the CashBook as an <strong>outflow</strong> instead of an inflow. If you’ve used Sales, you already know Purchases.</p>",
+      callout: { label: "Consistency by design", text: "Same combobox, same quick-add, same outstanding-balance logic — deliberately, so there’s only one pattern to learn." },
+      mock: function () {
+        return shell("Purchases", table(["Supplier","Total purchases","Total paid","Outstanding"], [
+          ["Ganesh Wholesale","₹2,000","₹1,200", '<span class="mock-amt-neg">₹800</span>']
+        ]));
+      }
+    },
+    {
+      group: "Employees", title: "Add your team",
+      copy: "<p>Employees are simple records — name, designation, monthly salary, joining date, and an active/inactive status you can flip later instead of deleting anyone.</p>",
+      callout: null,
+      mock: function () {
+        return shell("Employees", table(["Name","Designation","Salary","Status"], [
+          ["Anita Sharma","Accountant","₹25,000", '<span class="mock-badge">active</span>'],
+          ["Vikram Singh","Sales Executive","₹18,000", '<span class="mock-badge">active</span>']
+        ]));
+      }
+    },
+    {
+      group: "Employees", title: "Run payroll & give an advance",
+      copy: "<p>A <strong>salary</strong> payment is tied to a specific month — useful when you pay on the 1st for the month just finished. An <strong>advance</strong> is a separate, unplanned payout you can mark <em>adjusted</em> later once it’s settled against pay.</p><p>Both post to the CashBook automatically, as outflows.</p>",
+      callout: { label: "Note", text: "Marking an advance “adjusted” is a manual step today — it doesn’t yet auto-deduct from the next salary run." },
+      mock: function () {
+        return shell("Employees", table(["Employee","Type","For / status","Amount"], [
+          ["Anita Sharma","Salary","Aug 2026", amt(-25000)],
+          ["Vikram Singh","Advance", '<span class="mock-badge muted">pending</span>', amt(-2000)]
+        ]));
+      }
+    },
+    {
+      group: "Employees", title: "Check one employee’s ledger",
+      copy: "<p>Click <strong>Ledger</strong> next to any employee to see everything paid or advanced to them — salary history, advances given, advances settled, and what’s still outstanding — in one place.</p>",
+      callout: null,
+      mock: function () {
+        return shell("Employees", table(["Name"], [["Anita Sharma"]]), dialogOverlay("Vikram Singh — Ledger", null, null,
+          '<div class="mock-card-grid" style="margin-bottom:12px">' + statCard("Salary paid","₹0",true) + statCard("Advances given","₹2,000",false) + statCard("Outstanding","₹2,000",false) + '</div>' +
+          table(["Date","Type","Amount"], [["Aug 28","Advance", amt(-2000)]]));
+      }
+    },
+    {
+      group: "Power tools", title: "Search anything with ⌘K",
+      copy: "<p>Press <kbd>⌘</kbd><kbd>K</kbd> (or <kbd>Ctrl</kbd><kbd>K</kbd>) from anywhere in the app to jump straight to a module, or fire off a quick Credit, Debit, Sale, or Purchase without touching the sidebar.</p>",
+      callout: null,
+      mock: function () {
+        return shell("Dashboard", "", null, true);
+      }
+    },
+    {
+      group: "Power tools", title: "Export any report to CSV",
+      copy: "<p>The CashBook ledger, Sales &amp; Purchases outstanding, and the Salary register each have an <strong>Export CSV</strong> button. It respects whatever date range or filter you’ve got applied on screen — what you see is what downloads.</p>",
+      callout: { label: "Try it", text: "Filter the CashBook to a date range first, then export — the file only contains that window." },
+      mock: function () {
+        return shell("CashBook", '<div style="display:flex;justify-content:flex-end;margin-bottom:10px">' + btn("⤓ Export CSV", true) + '</div>' +
+          table(["Date","Type","Amount"], [["Aug 01","Credit", amt(1000)],["Aug 05","Debit", amt(-300)]]),
+          null, false, true);
+      }
+    },
+    {
+      group: "Power tools", title: "Your workspace, your rules",
+      copy: "<p>A theme toggle in the top bar switches light and dark instantly, and remembers your choice. On a phone, the sidebar collapses into a bottom tab bar so every module is still one tap away.</p><p>That’s the full tour — sign in and start with a Credit or a Sale. Everything from here reinforces itself: record it once, and it shows up correctly everywhere it needs to.</p>",
+      callout: { label: "You’re set", text: "Questions about a specific screen? Open it in the app — every form has the same shape you’ve seen here." },
+      mock: function () {
+        return shell("Settings", table(["Preference","Value"], [["Theme","System"],["Currency","INR"]]));
+      }
+    }
+  ];
+
+  function esc(s) { return String(s); }
+
+  function statCard(label, value, positive) {
+    return '<div class="mock-card"><div class="mock-stat-label">' + label + '</div><div class="mock-stat-value" style="color:hsl(var(--' + (positive ? "positive" : "negative") + '))">' + value + '</div></div>';
+  }
+  function amt(n) {
+    var pos = n >= 0;
+    var v = (pos ? "+₹" : "−₹") + Math.abs(n).toLocaleString("en-IN");
+    return '<span class="' + (pos ? "mock-amt-pos" : "mock-amt-neg") + '">' + v + '</span>';
+  }
+  function table(headers, rows) {
+    var h = headers.map(function (x) { return "<th>" + x + "</th>"; }).join("");
+    var b = rows.map(function (r) { return "<tr>" + r.map(function (c) { return "<td>" + c + "</td>"; }).join("") + "</tr>"; }).join("");
+    return '<table class="mock-table"><thead><tr>' + h + '</tr></thead><tbody>' + b + '</tbody></table>';
+  }
+  function btn(label, primary) {
+    return '<span class="mock-btn' + (primary ? " primary" : "") + '">' + label + '</span>';
+  }
+  function fields(pairs) {
+    return pairs.map(function (p) {
+      return '<div class="mock-field"><label>' + p[0] + '</label><div class="mock-input"><span>' + p[1] + '</span></div></div>';
+    }).join("");
+  }
+  function comboField(label, typed, options) {
+    var list = options.map(function (o) {
+      return '<div class="mock-combo-item' + (o.add ? " add" : "") + '">' + o.text + '</div>';
+    }).join("");
+    return '<div class="mock-field"><label>' + label + '</label><div class="mock-input"><span>' + typed + '</span><span>▾</span></div><div class="mock-combo-list">' + list + '</div></div>';
+  }
+  function dialogOverlay(title, fieldPairs, saveLabel, extraHtml) {
+    return '<div class="mock-overlay"><div class="mock-dialog"><h4>' + title + '</h4>' +
+      (extraHtml || (fieldPairs ? fields(fieldPairs) : "")) +
+      (saveLabel ? '<div style="margin-top:12px;text-align:right">' + btn(saveLabel, true) + '</div>' : "") +
+      '</div></div>';
+  }
+  function palette() {
+    return '<div class="mock-overlay"><div class="mock-palette">' +
+      '<div class="mock-palette-input">Type a command or search…</div>' +
+      '<div class="mock-palette-group-label">Quick add</div>' +
+      '<div class="mock-palette-item sel">+ New Sale</div>' +
+      '<div class="mock-palette-item">+ New Credit</div>' +
+      '<div class="mock-palette-group-label">Go to</div>' +
+      '<div class="mock-palette-item">CashBook</div>' +
+      '<div class="mock-palette-item">Employees</div>' +
+      '</div></div>';
+  }
+  function toast(title, desc) {
+    return '<div class="mock-toast"><b>' + title + '</b>' + desc + '</div>';
+  }
+
+  function shell(activeNav, contentHtml, overlayHtml, showPalette, showToast) {
+    var navItems = ["Dashboard", "CashBook", "Sales", "Purchases", "Employees", "Settings"];
+    var nav = navItems.map(function (item) {
+      return '<div class="mock-nav-item' + (item === activeNav ? " is-active" : "") + '">' + item + '</div>';
+    }).join("");
+    return '<div class="mock-shell">' +
+      '<div class="mock-titlebar"><span class="mock-dot"></span><span class="mock-dot"></span><span class="mock-dot"></span><span class="mock-url">munshi.app/' + (activeNav ? activeNav.toLowerCase() : "login") + '</span></div>' +
+      '<div class="mock-app">' +
+      '<div class="mock-sidebar"><div class="mock-brand">Munshi</div>' + nav + '</div>' +
+      '<div class="mock-main"><div class="mock-topbar"><span>Press <kbd>⌘K</kbd> to search</span><span class="mock-avatar">A</span></div>' +
+      '<div class="mock-content">' + (contentHtml || "") + '</div></div>' +
+      '</div>' +
+      (overlayHtml || "") + (showPalette ? palette() : "") + (showToast ? toast("Exported", "cashbook.csv downloaded") : "") +
+      '</div>';
+  }
+
+  /* ---------- render ---------- */
+  var rail = document.getElementById("rail");
+  var stage = document.getElementById("stage");
+  var current = 0;
+
+  function buildRail() {
+    var html = '<div class="rail-brand"><span class="mark">Munshi</span><span class="sub">Walkthrough</span></div>';
+    var groups = [];
+    STEPS.forEach(function (s, i) {
+      var g = groups[groups.length - 1];
+      if (!g || g.name !== s.group) { g = { name: s.group, items: [] }; groups.push(g); }
+      g.items.push(i);
+    });
+    groups.forEach(function (g) {
+      html += '<div class="rail-group"><div class="rail-group-label">' + g.name + '</div>';
+      g.items.forEach(function (i) {
+        html += '<button class="rail-item" data-i="' + i + '" type="button"><span class="n">' + String(i + 1).padStart(2, "0") + '</span><span>' + STEPS[i].title + '</span></button>';
+      });
+      html += '</div>';
+    });
+    rail.innerHTML = html;
+    rail.querySelectorAll(".rail-item").forEach(function (btn) {
+      btn.addEventListener("click", function () { goTo(parseInt(btn.dataset.i, 10)); });
+    });
+  }
+
+  function render() {
+    var s = STEPS[current];
+    rail.querySelectorAll(".rail-item").forEach(function (btn) {
+      btn.classList.toggle("is-active", parseInt(btn.dataset.i, 10) === current);
+    });
+    stage.innerHTML =
+      '<div class="eyebrow"><span class="idx">' + String(current + 1).padStart(2, "0") + ' / ' + STEPS.length + '</span><span>' + s.group + '</span></div>' +
+      '<h2 class="step-title">' + s.title + '</h2>' +
+      '<div class="step-copy">' + s.copy + '</div>' +
+      (s.callout ? '<div class="callout"><b>' + s.callout.label + '</b>' + s.callout.text + '</div>' : "") +
+      s.mock() +
+      '<div class="stage-nav">' +
+      '<button class="page-btn" id="prevBtn" type="button" ' + (current === 0 ? "disabled" : "") + '>← Previous</button>' +
+      '<button class="page-btn primary" id="nextBtn" type="button" ' + (current === STEPS.length - 1 ? "disabled" : "") + '>Next →</button>' +
+      '</div>';
+    document.getElementById("prevBtn").addEventListener("click", function () { goTo(current - 1); });
+    document.getElementById("nextBtn").addEventListener("click", function () { goTo(current + 1); });
+    stage.focus();
+    try { localStorage.setItem("munshi-walkthrough-step", String(current)); } catch (e) {}
+  }
+
+  function goTo(i) {
+    if (i < 0 || i >= STEPS.length) return;
+    current = i;
+    render();
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    if (e.key === "ArrowRight") goTo(current + 1);
+    if (e.key === "ArrowLeft") goTo(current - 1);
+  });
+
+  buildRail();
+  try {
+    var saved = parseInt(localStorage.getItem("munshi-walkthrough-step"), 10);
+    if (!isNaN(saved) && saved >= 0 && saved < STEPS.length) current = saved;
+  } catch (e) {}
+  render();
+
+  /* ---------- theme toggle (explicit override of system) ---------- */
+  var root = document.documentElement;
+  var toggle = document.getElementById("themeToggle");
+  function applyTheme(t) {
+    if (t) { root.setAttribute("data-theme", t); } else { root.removeAttribute("data-theme"); }
+  }
+  try {
+    var savedTheme = localStorage.getItem("munshi-walkthrough-theme");
+    if (savedTheme) applyTheme(savedTheme);
+  } catch (e) {}
+  toggle.addEventListener("click", function () {
+    var current = root.getAttribute("data-theme");
+    var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var next;
+    if (!current) next = prefersDark ? "light" : "dark";
+    else if (current === "dark") next = "light";
+    else next = "dark";
+    applyTheme(next);
+    try { localStorage.setItem("munshi-walkthrough-theme", next); } catch (e) {}
+  });
+})();
+</script>

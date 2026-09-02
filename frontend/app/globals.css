@@ -89,3 +89,47 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+/* Guided tour (driver.js) — theme the popover to match the app instead of its default light-only look. */
+.driver-popover {
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  border-radius: calc(var(--radius) + 2px);
+  box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.35);
+}
+.driver-popover-title {
+  color: hsl(var(--popover-foreground));
+  font-family: var(--font-sans);
+}
+.driver-popover-description {
+  color: hsl(var(--muted-foreground));
+}
+.driver-popover-progress-text {
+  color: hsl(var(--muted-foreground));
+}
+.driver-popover-footer .driver-popover-prev-btn,
+.driver-popover-footer .driver-popover-next-btn {
+  text-shadow: none;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+}
+.driver-popover-footer .driver-popover-prev-btn {
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+.driver-popover-close-btn {
+  color: hsl(var(--muted-foreground));
+}
+.driver-popover-arrow-side-left.driver-popover-arrow {
+  border-left-color: hsl(var(--popover));
+}
+.driver-popover-arrow-side-right.driver-popover-arrow {
+  border-right-color: hsl(var(--popover));
+}
+.driver-popover-arrow-side-top.driver-popover-arrow {
+  border-top-color: hsl(var(--popover));
+}
+.driver-popover-arrow-side-bottom.driver-popover-arrow {
+  border-bottom-color: hsl(var(--popover));
+}

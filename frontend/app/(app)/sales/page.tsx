@@ -72,7 +72,7 @@ export default function SalesPage() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl font-semibold tracking-tight">Sales</h1>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" data-tour="sales-actions">
           <SalesEntryForm
             trigger={
               <Button size="sm">
@@ -91,12 +91,12 @@ export default function SalesPage() {
       </div>
 
       <Tabs defaultValue="entries">
-        <TabsList>
+        <TabsList data-tour="sales-tabs">
           <TabsTrigger value="entries">Entries</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="outstanding">Outstanding</TabsTrigger>
         </TabsList>
-        <TabsContent value="entries" className="mt-4">
+        <TabsContent value="entries" className="mt-4" data-tour="sales-table">
           <DataTable
             columns={entryColumns}
             data={entries.data?.items ?? []}

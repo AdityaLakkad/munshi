@@ -15,10 +15,10 @@ export default function SettingsPage() {
       <h1 className="text-xl font-semibold tracking-tight">Settings</h1>
 
       {isFirmAdmin && (
-        <Card>
+        <Card data-tour="settings-firm">
           <CardHeader>
             <CardTitle className="text-base">Firm profile</CardTitle>
-            <CardDescription>Your firm's name and currency, shown across the app.</CardDescription>
+            <CardDescription>Your firm&apos;s name and currency, shown across the app.</CardDescription>
           </CardHeader>
           <CardContent>
             <FirmProfileForm />
@@ -27,7 +27,7 @@ export default function SettingsPage() {
       )}
 
       {isFirmAdmin && (
-        <Card>
+        <Card data-tour="settings-team">
           <CardHeader>
             <CardTitle className="text-base">Team</CardTitle>
             <CardDescription>Staff can record entries; Viewers are read-only. Only Firm Admins can manage the team.</CardDescription>
@@ -38,7 +38,7 @@ export default function SettingsPage() {
         </Card>
       )}
 
-      <Card>
+      <Card data-tour="settings-password">
         <CardHeader>
           <CardTitle className="text-base">Password</CardTitle>
           <CardDescription>Change the password for your own account.</CardDescription>

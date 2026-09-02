@@ -62,7 +62,7 @@ export default function EmployeesPage() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl font-semibold tracking-tight">Employees</h1>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" data-tour="employees-actions">
           <EmployeeForm
             trigger={
               <Button size="sm">
@@ -88,7 +88,7 @@ export default function EmployeesPage() {
       </div>
 
       <Tabs defaultValue="employees">
-        <TabsList>
+        <TabsList data-tour="employees-tabs">
           <TabsTrigger value="employees">Employees</TabsTrigger>
           <TabsTrigger value="salary">Salary</TabsTrigger>
           <TabsTrigger value="advance">Advance salary</TabsTrigger>
@@ -103,16 +103,19 @@ export default function EmployeesPage() {
               setPage(1);
             }}
             className="max-w-xs"
+            data-tour="employees-search"
           />
-          <DataTable
-            columns={employeeColumns}
-            data={data?.items ?? []}
-            isLoading={isLoading}
-            page={page}
-            pageSize={20}
-            total={data?.total ?? 0}
-            onPageChange={setPage}
-          />
+          <div data-tour="employees-table">
+            <DataTable
+              columns={employeeColumns}
+              data={data?.items ?? []}
+              isLoading={isLoading}
+              page={page}
+              pageSize={20}
+              total={data?.total ?? 0}
+              onPageChange={setPage}
+            />
+          </div>
         </TabsContent>
 
         <TabsContent value="salary" className="mt-4">

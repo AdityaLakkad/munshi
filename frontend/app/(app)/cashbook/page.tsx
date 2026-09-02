@@ -78,7 +78,7 @@ export default function CashbookPage() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl font-semibold tracking-tight">CashBook</h1>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" data-tour="cashbook-actions">
           <CashbookEntryForm
             type="credit"
             trigger={
@@ -123,7 +123,7 @@ export default function CashbookPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-end gap-2">
+      <div className="flex flex-wrap items-end gap-2" data-tour="cashbook-filters">
         <div className="space-y-1">
           <label className="text-xs text-muted-foreground">From</label>
           <Input
@@ -172,15 +172,17 @@ export default function CashbookPage() {
         </div>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={data?.items ?? []}
-        isLoading={isLoading}
-        page={page}
-        pageSize={20}
-        total={data?.total ?? 0}
-        onPageChange={setPage}
-      />
+      <div data-tour="cashbook-table">
+        <DataTable
+          columns={columns}
+          data={data?.items ?? []}
+          isLoading={isLoading}
+          page={page}
+          pageSize={20}
+          total={data?.total ?? 0}
+          onPageChange={setPage}
+        />
+      </div>
     </div>
   );
 }

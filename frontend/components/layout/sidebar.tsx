@@ -42,6 +42,7 @@ export function Sidebar() {
             <Link
               key={href}
               href={href}
+              data-tour={`nav-${href.slice(1)}`}
               className={cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-secondary",
                 pathname?.startsWith(href) && "bg-secondary font-medium"
@@ -60,6 +61,7 @@ export function Sidebar() {
           <Link
             key={href}
             href={href}
+            data-tour={`nav-${href.slice(1)}`}
             className={cn(
               "flex flex-col items-center gap-0.5 rounded-md px-2 py-1.5 text-[10px]",
               pathname?.startsWith(href) ? "text-primary" : "text-muted-foreground"

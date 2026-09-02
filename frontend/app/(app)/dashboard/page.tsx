@@ -39,7 +39,7 @@ export default function DashboardPage() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl font-semibold tracking-tight">Dashboard</h1>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" data-tour="dashboard-quick-add">
           <CashbookEntryForm
             type="credit"
             trigger={
@@ -73,7 +73,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6" data-tour="dashboard-cards">
         {cards.map((c) => (
           <Card key={c.title}>
             <CardHeader className="pb-2">
@@ -90,7 +90,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <Card>
+      <Card data-tour="dashboard-recent">
         <CardHeader>
           <CardTitle className="text-base">Recent transactions</CardTitle>
         </CardHeader>

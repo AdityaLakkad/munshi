@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { CommandPalette, useCommandPaletteShortcut } from "@/components/layout/command-palette";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
+import { HelpMeButton } from "@/components/help/help-me-button";
 import { useAuth } from "@/lib/auth";
 
 /** Protected app shell: redirects to /login when there is no authenticated user. */
@@ -31,6 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <main className="flex-1 p-4">{children}</main>
       </div>
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+      <HelpMeButton />
     </div>
   );
 }

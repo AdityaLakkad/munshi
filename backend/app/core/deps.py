@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import decode_token
 from app.db.session import get_db
-from app.models.user import User
+from app.models.user import User, UserRole
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
@@ -60,3 +60,13 @@ async def get_current_tenant(user: User = Depends(get_current_user)) -> uuid.UUI
             detail="This endpoint requires a tenant-scoped user.",
         )
     return user.tenant_id
+
+
+async def require_firm_admin(user: User = Depends(get_current_user)) -> User:
+    """For endpoints that manage the firm's users or profile — Firm Admin only."""
+    if user.role != UserRole.firm_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only a Firm Admin can perform this action.",
+        )
+    return user

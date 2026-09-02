@@ -3,7 +3,15 @@
  * token from storage and the API base URL. Extend with refresh-token
  * handling once Milestone 2 (Auth) endpoints beyond signup/login exist.
  */
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+function resolveApiUrl(): string {
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  if (typeof window !== "undefined") {
+    return `${window.location.protocol}//${window.location.hostname}:7020/api/v1`;
+  }
+  return "http://localhost:7020/api/v1";
+}
+
+const API_URL = resolveApiUrl();
 
 function getAccessToken(): string | null {
   if (typeof window === "undefined") return null;
@@ -26,6 +34,7 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     throw new Error(body.detail ?? `Request failed: ${res.status}`);
   }
 
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 

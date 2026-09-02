@@ -32,8 +32,6 @@ services:
   web:
     build: ./frontend
     restart: unless-stopped
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:7020/api/v1
     depends_on:
       - api
     ports:
